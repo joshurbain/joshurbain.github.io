@@ -1,0 +1,183 @@
+<html>
+	<head>
+        <meta charset="utf-8" />
+		<title>GREGALAGA</title>
+		<link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+		<link href='css/bootstrap-responsive.min.css' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<style>
+		@font-face {
+		  font-family: 'Iceland';
+		  font-style: normal;
+		  font-weight: 400;
+		  src: local('Iceland'), local('Iceland-Regular'), url(fonts/iceland.woff2) format('woff2');
+		  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+		
+		a, a:visited, a:active {
+			color: yellow;
+		}
+		
+		body {
+			background: url(img/space.jpeg) no-repeat center center fixed;
+			background-size: cover;
+			color: white;
+		}
+
+		#galaga_container {
+			width:400px;
+			margin:0 auto;
+		}
+		
+		#galaga_canvas {
+			background: rgba(0, 0, 0, 0.5);
+			margin: 0 auto;
+		}
+		
+		h1, h2, h3 {
+			font-family: 'Iceland', cursive;		
+			text-transform: uppercase;			
+		}
+		
+		.well {
+			background: rgba(0, 0, 0, 0.5);
+			text-align: center;
+			padding: 0.3em 0;
+		}
+		
+		.well h3 { margin:0; }
+		
+		#credits {
+			position: absolute;
+			bottom: -3px;
+			margin: 0;
+			padding: 0.2em 1em;
+			border: none;
+			width: 100%;
+		}
+		
+		.controls b { color:red; }
+		
+		</style>
+	</head>	
+	<body>
+		<div class="main">
+			<div class="fluid-container main_text">
+				<div class="fluid-row">
+					<h1 class="span12">GREGALAGA</h1>						
+				</div>
+				<div class="fluid-row">
+					<div id="galaga_container">
+						<canvas id="galaga_canvas" height="400" width="400"></canvas>
+					</div>
+				</div>	
+			</div>
+		</div>
+		
+		<p id="credits" class="well muted">
+			This game is based off the source code from <a href="https://github.com/Mutmatt/galaga_html5">https://github.com/Mutmatt/galaga_html5</a>
+		</p>
+		
+		<div id="img_source" style="display:none;">
+			<img id="bad1" src="img/bad2.png">
+			<img id="bad2" src="img/bad3.png">
+			<img id="bad3" src="img/bad1.png">
+			<img id="good" src="img/good.png">
+			<img id="suri" src="img/suri.png">
+			<img id="vim" src="img/vim.png">
+			<img id="laser" src="img/laser1.jpg" width="40" height="24">
+			<img id="boss" src="img/bc.png" width="90" height="70">
+			<img id="explosion" src="img/explosion1.png">
+		</div>
+<!--		
+		<audio id="sound0"></audio>
+		<audio id="sound1"></audio>
+		<audio id="sound2"></audio>
+		<audio id="sound3"></audio>
+		<audio id="sound4"></audio>
+		<audio id="sound5"></audio>
+		<audio id="sound6"></audio>
+		<audio id="sound7"></audio>
+		<audio id="sound8"></audio>
+		<audio id="sound9"></audio>
+		<audio id="sound10"></audio>
+		<audio id="sound11"></audio>
+		<audio id="sound12"></audio>
+		<audio id="sound13"></audio>
+		<audio id="sound14"></audio>
+-->
+        <audio id="sound0">
+            <source src="media/galaga0.mp3"></source>
+            <source src="media/galaga0.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound1">
+            <source src="media/galaga1.mp3"></source>
+            <source src="media/galaga1.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound2">
+            <source src="media/galaga2.mp3"></source>
+            <source src="media/galaga2.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound3">
+            <source src="media/galaga3.mp3"></source>
+            <source src="media/galaga3.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound4">
+            <source src="media/galaga4.mp3"></source>
+            <source src="media/galaga4.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound5">
+            <source src="media/galaga5.mp3"></source>
+            <source src="media/galaga5.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound6">
+            <source src="media/galaga6.mp3"></source>
+            <source src="media/galaga6.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound7">
+            <source src="media/galaga7.mp3"></source>
+            <source src="media/galaga7.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound8">
+            <source src="media/galaga8.mp3"></source>
+            <source src="media/galaga8.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound9">
+            <source src="media/galaga9.mp3"></source>
+            <source src="media/galaga9.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound11">
+            <source src="media/galaga11.mp3"></source>
+            <source src="media/galaga11.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound12">
+            <source src="media/galaga12.mp3"></source>
+            <source src="media/galaga12.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound13">
+            <source src="media/galaga13.mp3"></source>
+            <source src="media/galaga13.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+        <audio id="sound14">
+            <source src="media/galaga14.mp3"></source>
+            <source src="media/galaga14.wav"></source>
+            Your browser isn't invited for super fun audio time.
+        </audio>
+
+		<script type="text/javascript" src="js/boss_weapon.js"></script>
+		<script type="text/javascript" src="js/galaga.js"></script>
+	</body>
+</html>
