@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Three.js Material Browser</title>
+		<style>
+			body {
+				margin:0;
+				font-size: 15px;
+				line-height: 18px;
+				overflow: hidden;
+			}
+
+			canvas { width: 100%; height: 100% }
+
+			#newWindow {
+				display: block;
+				position: absolute;
+				bottom: 0.3em;
+				left: 0.5em;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="js/three.min.js"></script>
+        <script src='js/libs/dat.gui.min.js'></script>
+		<script src="js/controls/OrbitControls.js"></script>
+
+		<script>
+			var twoPi = Math.PI * 2;
+			var constants = {
+				side: {
+					'THREE.FrontSide': THREE.FrontSide,
+					'THREE.BackSide': THREE.BackSide,
+					'THREE.DoubleSide': THREE.DoubleSide
+				},
+				colors: {
+					'THREE.NoColors': THREE.NoColors,
+					'THREE.FaceColors': THREE.FaceColors,
+					'THREE.VertexColors': THREE.VertexColors
+				},
+			};
+
+			var textureMaps = ( function () {
+
+				return {
+					none: null,
+					bagel: new THREE.TextureLoader().load( './bagel.jpg' )
+				};
+
+			} )();
+			var textureMapKeys = ['none', 'bagel'];
+
+			function generateVertexColors( geometry ) {
+				for ( var i = 0, il = geometry.faces.length; i < il; i ++ ) {
+					geometry.faces[ i ].vertexColors.push( new THREE.Color().setHSL(i / il * Math.random(), 0.5, 0.5) );
+					geometry.faces[ i ].vertexColors.push( new THREE.Color().setHSL(i / il * Math.random(), 0.5, 0.5) );
+					geometry.faces[ i ].vertexColors.push( new THREE.Color().setHSL(i / il * Math.random(), 0.5, 0.5) );
+					geometry.faces[ i ].color = new THREE.Color().setHSL(i / il * Math.random(), 0.5, 0.5);
+				}
+			}
+
+			function handleColorChange( color ) {
+				return function ( value ) {
+					if ( typeof value === 'string' ) {
+						value = value.replace( '#', '0x' );
+					}
+
+					color.setHex( value );
+				};
+			}
+
+			function needsUpdate( material, geometry ) {
+				return function () {
+					material.vertexColors = + material.vertexColors; //Ensure number
+					material.side = + material.side; //Ensure number
+					material.needsUpdate = true;
+					geometry.verticesNeedUpdate = true;
+					geometry.normalsNeedUpdate = true;
+					geometry.colorsNeedUpdate = true;
+				};
+			}
+
+			function updateTexture( material, materialKey, textures ) {
+				return function ( key ) {
+					material[ materialKey ] = textures[ key ];
+					material.needsUpdate = true;
+				};
+			}
+
+			function guiScene( gui, scene ) {
+				var folder = gui.addFolder( 'Scene' );
+				var data = {
+					background: '#000000',
+					'ambient light': ambientLight.color.getHex()
+				};
+
+				var color = new THREE.Color();
+				var colorConvert = handleColorChange( color );
+
+				folder.addColor( data, 'background' ).onChange( function ( value ) {
+					colorConvert( value );
+					renderer.setClearColor( color.getHex() );
+				} );
+				folder.addColor( data, 'ambient light' ).onChange( handleColorChange( ambientLight.color ) );
+			}
+
+			function generateMaterial( gui, mesh, geometry ) {
+				var material = new THREE.MeshBasicMaterial( { color: 0xd7bbb0, map: textureMaps['bagel'] } );
+
+				var folder = gui.addFolder( 'THREE.Material' );
+
+				folder.add( material, 'transparent' );
+				folder.add( material, 'opacity', 0, 1 );
+				folder.add( material, 'depthTest' );
+				folder.add( material, 'depthWrite' );
+				folder.add( material, 'alphaTest', 0, 1 );
+				folder.add( material, 'visible' );
+				folder.add( material, 'side', constants.side ).onChange( needsUpdate( material, geometry ) );
+
+				var data = {
+					color: material.color.getHex(),
+					map: textureMapKeys,
+				};
+
+				var folder = gui.addFolder( 'THREE.MeshBasicMaterial' );
+
+				folder.addColor( data, 'color' ).onChange( handleColorChange( material.color ) );
+				folder.add( material, 'wireframe' );
+				folder.add( material, 'vertexColors', constants.colors ).onChange( needsUpdate( material, geometry ) );
+				folder.add( data, 'map', textureMapKeys ).onChange( updateTexture( material, 'map', textureMaps ) );
+
+				return material;
+			}
+
+			var gui = new dat.GUI();
+            var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 10, 50 );
+			camera.position.z = 30;
+
+			var renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0x000000, 1 );
+			document.body.appendChild( renderer.domElement );
+            
+			var orbit = new THREE.OrbitControls( camera, renderer.domElement );
+			orbit.enableZoom = false;
+
+			var ambientLight = new THREE.AmbientLight( 0x000000 );
+			scene.add( ambientLight );
+
+			var lights = [];
+			lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+			lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+			lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+
+			lights[ 0 ].position.set( 0, 200, 0 );
+			lights[ 1 ].position.set( 100, 200, 100 );
+			lights[ 2 ].position.set( - 100, - 200, - 100 );
+
+			scene.add( lights[ 0 ] );
+			scene.add( lights[ 1 ] );
+			scene.add( lights[ 2 ] );
+
+			guiScene( gui, scene, camera );
+
+			var geometry = new THREE.TorusGeometry(10, 3, 16, 100);
+			var mesh = new THREE.Mesh( geometry );
+
+			generateVertexColors( geometry );
+
+			mesh.material = generateMaterial( gui, mesh, geometry );
+
+			scene.add( mesh );
+
+			var prevFog = false;
+
+			var render = function () {
+
+				requestAnimationFrame( render );
+
+				var time = Date.now() * 0.001;
+
+				mesh.rotation.x += 0.005;
+				mesh.rotation.y += 0.005;
+
+				if ( prevFog !== scene.fog ) {
+					mesh.material.needsUpdate = true;
+					prevFog = scene.fog;
+				}
+
+				renderer.render( scene, camera );
+
+			};
+
+			window.addEventListener( 'resize', function () {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}, false );
+
+			render();
+
+		</script>
+	</body>
+</html>
